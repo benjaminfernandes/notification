@@ -9,6 +9,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -25,14 +27,17 @@ public class UserNotificationController {
         this.notificationService = notificationService;
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_STUDENT')")
     @GetMapping("/users/{userId}/notifications")
     public ResponseEntity<Page<NotificationModel>> getAllNotificationsByUser(@PathVariable(value = "userId") UUID userId,
                                                                              @PageableDefault(page = 0, size = 10, sort = "notificationId", direction = Sort.Direction.ASC)
-                                                                              Pageable pageable){
+                                                                              Pageable pageable,
+                                                                             Authentication authentication){
 
         return ResponseEntity.status(HttpStatus.OK).body(this.notificationService.findAllNotificationsByUser(userId, pageable));
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_STUDENT')")
     @PutMapping("/users/{userId}/notifications/{notificationId}")
     public ResponseEntity<?> updateNotification(@PathVariable(value = "userId") UUID userId,
                                                 @PathVariable(value = "notificationId") UUID notificationId,
